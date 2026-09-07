@@ -1,6 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-const db = globalThis.__B44_DB__;
+import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
+
+const db = createClient({
+  appId: import.meta.env.VITE_BASE44_APP_ID,
+  headers: {
+    "api_key": import.meta.env.VITE_BASE44_API_KEY
+  }
+});
+globalThis.__B44_DB__ = db;
 
 const AuthContext = createContext();
 
