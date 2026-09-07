@@ -31,7 +31,8 @@ export const AuthProvider = ({ children }) => {
           headers['Authorization'] = `Bearer ${appParams.token}`;
         }
 
-        const response = await fetch(`${appParams.serverUrl}/api/apps/public/prod/public-settings/by-id/${appParams.appId}`, {
+        const baseUrl = appParams.serverUrl.endsWith('/api') ? appParams.serverUrl.replace(/\/api$/, '') : appParams.serverUrl;
+        const response = await fetch(`${baseUrl}/api/apps/public/prod/public-settings/by-id/${appParams.appId}`, {
           method: 'GET',
           headers
         });
