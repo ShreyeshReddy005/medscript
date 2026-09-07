@@ -4,7 +4,7 @@ import { appParams } from '@/lib/app-params';
 
 export const db = createClient({
   appId: import.meta.env.VITE_BASE44_APP_ID,
-  serverUrl: import.meta.env.VITE_BASE44_BACKEND_URL,
+  serverUrl: import.meta.env.VITE_BASE44_BACKEND_URL?.replace(/\/api$/, ''),
   appBaseUrl: import.meta.env.VITE_BASE44_APP_BASE_URL,
   token: appParams.token || localStorage.getItem('token') || localStorage.getItem('base44_access_token'),
   headers: {
