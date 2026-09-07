@@ -1,0 +1,59 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "User's full name"
+    },
+    "preferred_name": {
+      "type": "string",
+      "description": "Name to display in the app"
+    },
+    "phone": {
+      "type": "string",
+      "description": "User's phone number"
+    },
+    "emergency_contact": {
+      "type": "string",
+      "description": "Emergency contact number"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "User's date of birth"
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of known allergies"
+    },
+    "medical_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of chronic medical conditions"
+    }
+  },
+  "required": [],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

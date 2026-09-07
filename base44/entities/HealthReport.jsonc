@@ -1,0 +1,98 @@
+{
+  "name": "HealthReport",
+  "type": "object",
+  "properties": {
+    "patient_name": {
+      "type": "string",
+      "description": "Full name of the patient this report belongs to. Must match User.full_name, User.preferred_name, or FamilyMember.full_name exactly for proper data linking."
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "Lab Result",
+        "Imaging Scan",
+        "Pathology",
+        "Cardiology",
+        "Other"
+      ],
+      "description": "The type of medical report"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the report was issued"
+    },
+    "report_name": {
+      "type": "string",
+      "description": "The name of the report or test panel (e.g., 'Complete Blood Count', 'Lipid Panel', 'Chest X-Ray'). Standardize common abbreviations."
+    },
+    "results": {
+      "type": "array",
+      "description": "Array of individual test results within the report with precise extraction",
+      "items": {
+        "type": "object",
+        "properties": {
+          "test_name": {
+            "type": "string",
+            "description": "Name of the specific test (e.g., 'HDL Cholesterol', 'Hemoglobin'). Standardize abbreviations and correct OCR errors."
+          },
+          "value": {
+            "type": "string",
+            "description": "The measured value, extracted as precise number or string. Handle ranges like '120-140'."
+          },
+          "units": {
+            "type": "string",
+            "description": "Units for the value (e.g., 'mg/dL', 'g/dL', '10^3/uL', '%'). Standardize common variations."
+          },
+          "reference_range": {
+            "type": "string",
+            "description": "The normal or reference range (e.g., '40-60 mg/dL', '<100', '3.5-5.0'). Extract exactly as shown."
+          },
+          "is_abnormal": {
+            "type": "boolean",
+            "description": "Set to true if value is outside reference range OR explicitly flagged as High/Low/Abnormal on the report."
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "description": "A brief summary, conclusion, or impression from the report, if provided by the physician or lab."
+    },
+    "ordering_physician": {
+      "type": "string",
+      "description": "Name of the doctor who ordered this report"
+    },
+    "lab_name": {
+      "type": "string",
+      "description": "Name of the laboratory or facility that conducted the tests"
+    },
+    "original_file_url": {
+      "type": "string",
+      "description": "URL of the original report image/PDF"
+    }
+  },
+  "required": [
+    "patient_name",
+    "report_type",
+    "report_date",
+    "report_name"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

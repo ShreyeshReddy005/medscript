@@ -1,0 +1,66 @@
+{
+  "name": "MedicationLog",
+  "type": "object",
+  "properties": {
+    "reminder_id": {
+      "type": "string",
+      "description": "ID of the associated reminder"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Name of the patient this log is for"
+    },
+    "medicine_name": {
+      "type": "string",
+      "description": "Name of the medicine"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the medicine was scheduled to be taken"
+    },
+    "taken_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the medicine was actually taken"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "taken",
+        "missed",
+        "skipped"
+      ],
+      "default": "taken",
+      "description": "Status of the medication"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about taking the medication"
+    }
+  },
+  "required": [
+    "reminder_id",
+    "patient_name",
+    "medicine_name",
+    "scheduled_time",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

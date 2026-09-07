@@ -1,0 +1,82 @@
+{
+  "name": "FamilyMember",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Full name of the family member"
+    },
+    "relation_to_user": {
+      "type": "string",
+      "enum": [
+        "Child",
+        "Spouse",
+        "Parent",
+        "Sibling",
+        "Other"
+      ],
+      "description": "Relationship to the main user account"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth for the family member"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "Male",
+        "Female",
+        "Other"
+      ],
+      "description": "Gender of the family member"
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of known allergies for this family member"
+    },
+    "medical_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of chronic medical conditions for this family member"
+    },
+    "emergency_contact": {
+      "type": "string",
+      "description": "Emergency contact number for this family member"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any additional notes for this family member"
+    },
+    "profile_color": {
+      "type": "string",
+      "enum": [
+        "blue",
+        "green",
+        "purple",
+        "pink",
+        "orange",
+        "red"
+      ],
+      "default": "blue",
+      "description": "Color theme for this family member's profile"
+    }
+  },
+  "required": [
+    "full_name",
+    "relation_to_user"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

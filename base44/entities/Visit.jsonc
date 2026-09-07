@@ -1,0 +1,124 @@
+{
+  "name": "Visit",
+  "type": "object",
+  "properties": {
+    "patient_name": {
+      "type": "string",
+      "description": "Full name of the patient this visit is for. Must match User.full_name, User.preferred_name, or FamilyMember.full_name exactly."
+    },
+    "doctor_name": {
+      "type": "string",
+      "description": "Name of the doctor being visited"
+    },
+    "specialty": {
+      "type": "string",
+      "description": "Medical specialty (e.g. Cardiology, General Practice)"
+    },
+    "clinic_name": {
+      "type": "string",
+      "description": "Name of the clinic or hospital"
+    },
+    "visit_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the visit is scheduled or took place"
+    },
+    "visit_purpose": {
+      "type": "string",
+      "description": "Reason for the visit or main concern"
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Symptoms or issues the patient wants to discuss"
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions the patient wants to ask the doctor"
+    },
+    "prep_notes": {
+      "type": "string",
+      "description": "Additional preparation notes or context"
+    },
+    "audio_file_url": {
+      "type": "string",
+      "description": "URL of the recorded visit audio"
+    },
+    "transcript": {
+      "type": "string",
+      "description": "Transcribed text of the visit conversation"
+    },
+    "key_points": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key points and findings discussed during the visit"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recommendations from the doctor (medications, lifestyle, tests)"
+    },
+    "next_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The action to take"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "description": "When the action should be completed"
+          }
+        }
+      },
+      "description": "Actionable follow-up steps with optional due dates"
+    },
+    "duration_seconds": {
+      "type": "number",
+      "description": "Duration of the audio recording in seconds"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "preparing",
+        "recording",
+        "completed"
+      ],
+      "default": "preparing",
+      "description": "Current stage of the visit workflow"
+    }
+  },
+  "required": [
+    "patient_name",
+    "visit_date"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

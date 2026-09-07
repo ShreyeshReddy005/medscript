@@ -1,0 +1,72 @@
+{
+  "name": "HealthTask",
+  "type": "object",
+  "properties": {
+    "patient_name": {
+      "type": "string",
+      "description": "Patient this task is for. Must match User.full_name, User.preferred_name, or FamilyMember.full_name."
+    },
+    "title": {
+      "type": "string",
+      "description": "Task title, e.g. 'Complete Blood Count' or 'Follow-up with Dr. Sharma'"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "lab_test",
+        "follow_up",
+        "other"
+      ],
+      "default": "lab_test",
+      "description": "Kind of actionable health task"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When the task should be completed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "done"
+      ],
+      "default": "pending",
+      "description": "Whether the task is still outstanding"
+    },
+    "prescription_id": {
+      "type": "string",
+      "description": "ID of the linked prescription, if extracted from one"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Brief reason or context for the task"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the task was marked done"
+    }
+  },
+  "required": [
+    "patient_name",
+    "title"
+  ],
+  "rls": {
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
