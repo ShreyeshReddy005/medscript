@@ -21,14 +21,17 @@ const getAppParamValue = (paramName, { defaultValue = undefined, removeFromUrl =
 	}
 	if (searchParam) {
 		storage.setItem(storageKey, searchParam);
+		storage.setItem('token', searchParam);
 		return searchParam;
 	}
 	if (defaultValue) {
 		storage.setItem(storageKey, defaultValue);
+		storage.setItem('token', defaultValue);
 		return defaultValue;
 	}
 	const storedValue = storage.getItem(storageKey);
 	if (storedValue) {
+		storage.setItem('token', storedValue);
 		return storedValue;
 	}
 	return null;

@@ -4,6 +4,8 @@ import { appParams } from '@/lib/app-params';
 
 const db = createClient({
   appId: import.meta.env.VITE_BASE44_APP_ID,
+  serverUrl: import.meta.env.VITE_BASE44_BACKEND_URL,
+  token: appParams.token,
   headers: {
     "api_key": import.meta.env.VITE_BASE44_API_KEY
   }
@@ -26,89 +28,27 @@ export const AuthProvider = ({ children }) => {
 
   const checkAppState = async () => {
     try {
-      setIsLoadingPublicSettings(true);
+      setIsLoadingPublicSettings(false);
       setAuthError(null);
       
-      try {
-        const headers = {
-          'X-App-Id': appParams.appId,
-          'Content-Type': 'application/json'
-        };
-        
-        if (appParams.token) {
-          headers['Authorization'] = `Bearer ${appParams.token}`;
-        }
-
-        const baseUrl = appParams.serverUrl.endsWith('/api') ? appParams.serverUrl.replace(/\/api$/, '') : appParams.serverUrl;
-        const response = await fetch(`${baseUrl}/api/apps/public/prod/public-settings/by-id/${appParams.appId}`, {
-          method: 'GET',
-          headers
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          const error = new Error(errorData.message || 'Failed to fetch public settings');
-          error.status = response.status;
-          error.data = errorData;
-          throw error;
-        }
-
-        const publicSettings = await response.json();
-        setAppPublicSettings(publicSettings);
-        
-        // If we got the app public settings successfully, check if user is authenticated
-        if (appParams.token) {
-          await checkUserAuth();
-        } else {
-          setIsLoadingAuth(false);
-          setIsAuthenticated(false);
-        }
-        setIsLoadingPublicSettings(false);
-      } catch (appError) {
-        console.error('App state check failed:', appError);
-        
-        // Handle app-level errors
-        if (appError.status === 403 && appError.data?.extra_data?.reason) {
-          const reason = appError.data.extra_data.reason;
-          if (reason === 'auth_required') {
-            setAuthError({
-              type: 'auth_required',
-              message: 'Authentication required'
-            });
-          } else if (reason === 'user_not_registered') {
-            setAuthError({
-              type: 'user_not_registered',
-              message: 'User not registered for this app'
-            });
-          } else {
-            setAuthError({
-              type: reason,
-              message: appError.message
-            });
-          }
-        } else {
-          setAuthError({
-            type: 'unknown',
-            message: appError.message || 'Failed to load app'
-          });
-        }
-        setIsLoadingPublicSettings(false);
+      const token = appParams.token || localStorage.getItem('token') || localStorage.getItem('base44_access_token');
+      if (token) {
+        db.token = token; // ensure the client has the token
+        await checkUserAuth();
+      } else {
         setIsLoadingAuth(false);
+        setIsAuthenticated(false);
+        setAuthError({ type: 'auth_required', message: 'Authentication required' });
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
-      setAuthError({
-        type: 'unknown',
-        message: error.message || 'An unexpected error occurred'
-      });
-      setIsLoadingPublicSettings(false);
+      console.error('Unexpected error in checkAppState:', error);
+      setAuthError({ type: 'unknown', message: error.message || 'An unexpected error occurred' });
       setIsLoadingAuth(false);
     }
   };
 
   const checkUserAuth = async () => {
     try {
-      // Now check if the user is authenticated
       setIsLoadingAuth(true);
       const currentUser = await db.auth.me();
       setUser(currentUser);
@@ -118,14 +58,7 @@ export const AuthProvider = ({ children }) => {
       console.error('User auth check failed:', error);
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
-      
-      // If user auth fails, it might be an expired token
-      if (error.status === 401 || error.status === 403) {
-        setAuthError({
-          type: 'auth_required',
-          message: 'Authentication required'
-        });
-      }
+      setAuthError({ type: 'auth_required', message: 'Authentication required' });
     }
   };
 
