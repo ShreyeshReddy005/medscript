@@ -1,4 +1,3 @@
-import './App.css'
 import { Toaster } from "@/components/ui/toaster"
 import Insights from './pages/Insights'
 import VisitAssistant from './pages/VisitAssistant'
