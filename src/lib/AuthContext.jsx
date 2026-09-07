@@ -5,7 +5,8 @@ import { appParams } from '@/lib/app-params';
 export const db = createClient({
   appId: import.meta.env.VITE_BASE44_APP_ID,
   serverUrl: import.meta.env.VITE_BASE44_BACKEND_URL,
-  token: appParams.token,
+  appBaseUrl: import.meta.env.VITE_BASE44_APP_BASE_URL,
+  token: appParams.token || localStorage.getItem('token') || localStorage.getItem('base44_access_token'),
   headers: {
     "api_key": import.meta.env.VITE_BASE44_API_KEY
   }
@@ -33,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       
       const token = appParams.token || localStorage.getItem('token') || localStorage.getItem('base44_access_token');
       if (token) {
-        db.token = token; // ensure the client has the token
+        db.setToken(token); // ensure the client has the token
         await checkUserAuth();
       } else {
         setIsLoadingAuth(false);
@@ -49,16 +50,22 @@ export const AuthProvider = ({ children }) => {
 
   const checkUserAuth = async () => {
     try {
-      setIsLoadingAuth(true);
-      const currentUser = await db.auth.me();
-      setUser(currentUser);
+      console.log('Verifying token with db.auth.me()...');
+      const user = await db.auth.me();
+      console.log('Token verified! User:', user.id);
+      setUser(user);
       setIsAuthenticated(true);
-      setIsLoadingAuth(false);
+      setAuthError(null);
     } catch (error) {
-      console.error('User auth check failed:', error);
-      setIsLoadingAuth(false);
+      console.error('Auth verification failed. Token is invalid or expired:', error);
+      if (error?.status === 401 || error?.status === 403 || error.message?.includes('Unauthorized')) {
+        setAuthError({ type: 'auth_required' });
+      } else {
+        setAuthError({ type: 'auth_required' }); // fallback to auth_required
+      }
       setIsAuthenticated(false);
-      setAuthError({ type: 'auth_required', message: 'Authentication required' });
+    } finally {
+      setIsLoadingAuth(false);
     }
   };
 
