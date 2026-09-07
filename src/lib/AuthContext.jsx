@@ -1,7 +1,5 @@
-const db = globalThis.__B44_DB__ || { auth:{ isAuthenticated: async()=>false, me: async()=>null }, entities:new Proxy({}, { get:()=>({ filter:async()=>[], get:async()=>null, create:async()=>({}), update:async()=>({}), delete:async()=>({}) }) }), integrations:{ Core:{ UploadFile:async()=>({ file_url:'' }) } } };
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
-
+const db = globalThis.__B44_DB__;
 import { appParams } from '@/lib/app-params';
 
 const AuthContext = createContext();
@@ -23,19 +21,30 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
       
-      // First, check app public settings (with token if available)
-      // This will tell us if auth is required, user not registered, etc.
-      const appClient = createAxiosClient({
-        baseURL: `${appParams.serverUrl}/api/apps/public`,
-        headers: {
-          'X-App-Id': appParams.appId
-        },
-        token: appParams.token, // Include token if available
-        interceptResponses: true
-      });
-      
       try {
-        const publicSettings = await appClient.get(`/prod/public-settings/by-id/${appParams.appId}`);
+        const headers = {
+          'X-App-Id': appParams.appId,
+          'Content-Type': 'application/json'
+        };
+        
+        if (appParams.token) {
+          headers['Authorization'] = `Bearer ${appParams.token}`;
+        }
+
+        const response = await fetch(`${appParams.serverUrl}/api/apps/public/prod/public-settings/by-id/${appParams.appId}`, {
+          method: 'GET',
+          headers
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const error = new Error(errorData.message || 'Failed to fetch public settings');
+          error.status = response.status;
+          error.data = errorData;
+          throw error;
+        }
+
+        const publicSettings = await response.json();
         setAppPublicSettings(publicSettings);
         
         // If we got the app public settings successfully, check if user is authenticated
