@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MedicationReminder } from '@/entities/MedicationReminder';
+import { MedicationReminder  } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

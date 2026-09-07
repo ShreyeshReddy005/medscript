@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { User as UserEntity, FamilyMember } from "@/entities/all";
+import { User as UserEntity, FamilyMember  } from "@/entities/all";
 import { User, Calendar, Pill, Edit3, X, Phone, MapPin, Building2, CheckCircle2, Stethoscope, Clock, Info, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";

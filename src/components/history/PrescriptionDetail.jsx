@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Prescription } from "@/entities/Prescription";
-import { MedicationReminder } from "@/entities/MedicationReminder";
-import { HealthTask } from "@/entities/HealthTask";
+import { Prescription  } from "@/entities/all";
+import { MedicationReminder  } from "@/entities/all";
+import { HealthTask  } from "@/entities/all";
 import { InvokeLLM } from "@/integrations/Core";
 import { format, parseISO } from "date-fns";
 import { X, User, Calendar, Pill, FileText, ExternalLink, Share2, Archive, CheckCircle, Edit, Trash2, MapPin, Phone, Building2, BrainCircuit as Brain, Loader, Bell, FlaskConical } from "lucide-react";

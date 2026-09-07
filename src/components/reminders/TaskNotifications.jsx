@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { HealthTask } from "@/entities/HealthTask";
+import { HealthTask  } from "@/entities/all";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format, parseISO, isPast, isToday, differenceInCalendarDays } from "date-fns";

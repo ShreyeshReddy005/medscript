@@ -10,7 +10,7 @@ import {
   Sparkles,
   CheckCircle2,
 } from "lucide-react";
-import { Visit, User, FamilyMember, Prescription, UserProfile } from "@/entities/all";
+import { Visit, User, FamilyMember, Prescription, UserProfile  } from "@/entities/all";
 import { UploadFile, TranscribeAudio, InvokeLLM } from "@/integrations/Core";
 import PatientSwitcher from "@/components/dashboard/PatientSwitcher";
 import AudioRecorder from "@/components/visits/AudioRecorder";

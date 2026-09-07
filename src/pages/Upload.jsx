@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { UploadFile } from "@/integrations/Core";
-import { Prescription, HealthReport, User, FamilyMember } from "@/entities/all";
+import { Prescription, HealthReport, User, FamilyMember  } from "@/entities/all";
 import { processPrescription, processHealthReport, checkDrugInteractions as runDrugInteractionCheck, ExtractionError, isPrescriptionCourseCompleted } from "@/lib/extractionPipeline";
 import UploadMethods from "../components/upload/UploadMethods";
 import UploadTips from "../components/upload/UploadTips";

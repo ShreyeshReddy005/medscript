@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, X, PlusCircle, Trash2, User } from 'lucide-react';
-import { Prescription } from "@/entities/Prescription";
+import { Prescription  } from "@/entities/all";
 
 const medicineCategories = ["antibiotic", "painkiller", "vitamin", "supplement", "chronic", "other"];
 

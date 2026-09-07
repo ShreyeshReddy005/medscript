@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
 
-const db = createClient({
+export const db = createClient({
   appId: import.meta.env.VITE_BASE44_APP_ID,
   serverUrl: import.meta.env.VITE_BASE44_BACKEND_URL,
   token: appParams.token,

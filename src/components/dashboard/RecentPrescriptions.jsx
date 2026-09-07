@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { ChevronRight, Stethoscope, Plus, CheckCircle } from "lucide-react";
-import { Prescription } from "@/entities/Prescription";
+import { Prescription  } from "@/entities/all";
 import PrescriptionDetail from "../history/PrescriptionDetail";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";

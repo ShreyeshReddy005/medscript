@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, User, Plus, ChevronDown, Check } from 'lucide-react';
-import { FamilyMember } from "@/entities/all";
-import { User as UserEntity } from '@/entities/User';
+import { FamilyMember  } from "@/entities/all";
+import { User as UserEntity  } from "@/entities/all";
 
 export default function PatientSwitcher({ patients, selectedPatient, onSelectPatient, onAddFamily }) {
   const [allPatients, setAllPatients] = useState([]);

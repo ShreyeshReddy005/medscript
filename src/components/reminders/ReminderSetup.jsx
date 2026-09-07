@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MedicationReminder } from '@/entities/MedicationReminder';
+import { MedicationReminder  } from "@/entities/all";
 import { Bell, Clock, Calendar, ChevronDown, ChevronUp, Plus, Trash2, Pill, CheckCircle2, SkipForward, AlertCircle } from 'lucide-react';
 import { add, format, isBefore, startOfDay, parseISO } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';

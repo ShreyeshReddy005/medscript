@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MedicationReminder, MedicationLog } from '@/entities/all';
+import { MedicationReminder, MedicationLog  } from "@/entities/all";
 import { format, parseISO, isFuture, isToday, differenceInMinutes } from 'date-fns';
 import { Bell, Check, SkipForward, X } from 'lucide-react';
 

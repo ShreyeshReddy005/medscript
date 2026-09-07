@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Prescription, MedicationLog } from "@/entities/all";
+import { Prescription, MedicationLog  } from "@/entities/all";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { eachDayOfInterval, format, subDays } from "date-fns";
 import { BarChart3, PieChart as PieChartIcon, TrendingUp } from "lucide-react";
