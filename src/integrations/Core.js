@@ -26,8 +26,8 @@ export const InvokeLLM = async ({ prompt, system_prompt, response_json_schema, f
     throw new Error("Missing VITE_GEMINI_API_KEY in environment variables.");
   }
   
-  // Select the model: use 3.1-pro for complex extraction (especially with files), 3.8-flash for faster text-only.
-  const model = file_urls && file_urls.length > 0 ? "gemini-3.1-pro" : "gemini-3.8-flash";
+  // Select the model: use 3.1-pro-preview for complex extraction (especially with files), 3.8-flash for faster text-only.
+  const model = file_urls && file_urls.length > 0 ? "gemini-3.1-pro-preview" : "gemini-3.8-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
   
   const parts = [];
@@ -130,7 +130,7 @@ export const TranscribeAudio = async ({ audio_url }) => {
       reader.readAsDataURL(blob);
     });
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${GEMINI_API_KEY}`;
     const body = {
       contents: [{
         parts: [
