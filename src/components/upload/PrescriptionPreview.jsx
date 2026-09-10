@@ -122,15 +122,13 @@ export default function PrescriptionPreview({ prescriptionData, onEdit, onCancel
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-10 flex justify-center">
-        <div className="w-full max-w-2xl flex gap-3">
-          <Button variant="outline" onClick={onCancel} className="flex-1 py-6 rounded-xl border-gray-200">
-            Discard
-          </Button>
-          <Button onClick={() => onSave(prescriptionData)} disabled={saving} className="flex-1 py-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-200">
-            {saving ? "Saving..." : "Confirm & Save"}
-          </Button>
-        </div>
+      <div className="mt-8 flex gap-3 pb-24">
+        <Button variant="outline" onClick={onCancel} className="flex-1 py-6 rounded-xl border-gray-200">
+          Discard
+        </Button>
+        <Button onClick={() => onSave(prescriptionData)} disabled={saving} className="flex-1 py-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-200">
+          {saving ? "Saving..." : "Confirm & Save"}
+        </Button>
       </div>
     </div>
   );

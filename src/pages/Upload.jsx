@@ -619,7 +619,7 @@ function ReportPreviewForm({ initialData, onSave, onCancel }) {
     };
 
     return (
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 pb-24">
             <h2 className="text-2xl font-bold">Review Health Report</h2>
             
             <div className="bg-white rounded-2xl p-6 border border-gray-100 space-y-4">
