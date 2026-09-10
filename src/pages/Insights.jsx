@@ -7,6 +7,8 @@ import {
   TrendingUp, TrendingDown, Activity, Heart, Brain, Pill, FlaskConical,
   AlertTriangle, CheckCircle2, Sparkles, Calendar, ChevronRight, Loader2
 } from "lucide-react";
+import { processLabReports } from "../utils/medicalProcessing";
+import BiomarkerPanelCard from "../components/insights/BiomarkerPanelCard";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from "recharts";
 
 // Adherence history for last 7 days
@@ -70,45 +72,7 @@ function AdherenceChart({ logs }) {
 }
 
 // Abnormal trends from health reports
-function AbnormalTrendsCard({ reports }) {
-  const abnormalItems = reports.flatMap(r =>
-    (r.results || []).filter(res => res.is_abnormal).map(res => ({
-      ...res,
-      reportName: r.report_name,
-      date: r.report_date || r.created_date
-    }))
-  ).slice(0, 5);
-
-  if (!abnormalItems.length) return null;
-
-  return (
-    <div className="bg-red-50 rounded-2xl p-5 border border-red-100 shadow-sm">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-red-100 rounded-2xl flex items-center justify-center">
-          <AlertTriangle className="w-5 h-5 text-red-500" />
-        </div>
-        <div>
-          <h3 className="font-bold text-red-900">Abnormal Results to Monitor</h3>
-          <p className="text-xs text-red-500">{abnormalItems.length} flagged value{abnormalItems.length > 1 ? "s" : ""}</p>
-        </div>
-      </div>
-      <div className="space-y-2">
-        {abnormalItems.map((item, i) => (
-          <div key={i} className="bg-white rounded-2xl px-4 py-3 border border-red-100 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-gray-900">{item.test_name}</p>
-              <p className="text-xs text-gray-400">{item.reportName}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-red-700">{item.value} {item.units}</p>
-              {item.reference_range && <p className="text-xs text-gray-400">Ref: {item.reference_range}</p>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// AbnormalTrendsCard removed in favor of dynamic panels
 
 // Health Score Card
 function HealthScoreCard({ score, breakdown }) {
@@ -305,6 +269,19 @@ export default function Insights() {
   const abnormalCount = reports.reduce((sum, r) => sum + (r.results?.filter(res => res.is_abnormal).length || 0), 0);
   const activePrescriptions = prescriptions.filter(p => p.is_active !== false).length;
 
+  const panels = processLabReports(reports);
+
+  const PANEL_CONFIG = {
+    VITALS: { title: "Vitals & Biometrics", icon: Heart, color: { bg: "bg-rose-100", text: "text-rose-600" } },
+    LIPIDS: { title: "Lipids & Heart Health", icon: Activity, color: { bg: "bg-amber-100", text: "text-amber-600" } },
+    METABOLIC: { title: "Blood Sugar & Diabetes", icon: TrendingUp, color: { bg: "bg-blue-100", text: "text-blue-600" } },
+    CBC: { title: "Complete Blood Count", icon: FlaskConical, color: { bg: "bg-red-100", text: "text-red-600" } },
+    LIVER: { title: "Liver Function", icon: Activity, color: { bg: "bg-orange-100", text: "text-orange-600" } },
+    KIDNEY: { title: "Kidney Function", icon: Activity, color: { bg: "bg-cyan-100", text: "text-cyan-600" } },
+    THYROID: { title: "Thyroid Profile", icon: Activity, color: { bg: "bg-indigo-100", text: "text-indigo-600" } },
+    OTHER: { title: "Other Biomarkers", icon: FlaskConical, color: { bg: "bg-gray-100", text: "text-gray-600" } }
+  };
+
   const healthScore = Math.round(
     (adherenceRate * 0.5) +
     (abnormalCount === 0 ? 30 : Math.max(0, 30 - abnormalCount * 5)) +
@@ -357,7 +334,21 @@ export default function Insights() {
               adherenceRate={adherenceRate}
             />
             <AdherenceChart logs={logs} />
-            <AbnormalTrendsCard reports={reports} />
+            
+            {/* Dynamic Lab Report Panels */}
+            {Object.entries(panels).map(([category, results]) => {
+              const config = PANEL_CONFIG[category] || PANEL_CONFIG.OTHER;
+              return (
+                <BiomarkerPanelCard 
+                  key={category}
+                  title={config.title}
+                  icon={config.icon}
+                  colorClass={config.color}
+                  results={results}
+                />
+              );
+            })}
+
             <ActiveMedicinesCard prescriptions={prescriptions} />
             {prescriptions.length === 0 && reports.length === 0 && (
               <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
