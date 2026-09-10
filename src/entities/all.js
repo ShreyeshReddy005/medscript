@@ -53,6 +53,16 @@ const createEntityProxy = (tableName) => {
       return data;
     },
 
+    bulkCreate: async (payloads) => {
+      const userRes = await supabase.auth.getUser();
+      if (userRes.data?.user) {
+         payloads = payloads.map(p => ({ ...p, user_id: userRes.data.user.id }));
+      }
+      const { data, error } = await supabase.from(tableName.toLowerCase()).insert(payloads).select();
+      if (error) throw error;
+      return data || [];
+    },
+
     update: async (id, payload) => {
       const { data, error } = await supabase.from(tableName.toLowerCase()).update(payload).eq('id', id).select().single();
       if (error) throw error;

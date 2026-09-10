@@ -130,14 +130,9 @@ export default function ReminderSetup({ prescription, onClose, onSave }) {
         dosage: r.dosage,
         frequency: r.frequency,
         timing: r.timing,
-        reminder_times: r.reminder_times,
-        duration_days: r.duration_days,
-        start_date: r.start_date,
-        end_date: format(endDate, 'yyyy-MM-dd'),
-        is_active: !courseEnded,
-        category: r.category,
-        quantity_prescribed: r.quantity_prescribed,
-        refill_reminder_date,
+        times: r.reminder_times,
+        duration: r.duration_days ? `${r.duration_days} days` : null,
+        is_active: !courseEnded
       };
     });
     try {
