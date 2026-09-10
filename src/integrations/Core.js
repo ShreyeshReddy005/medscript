@@ -27,7 +27,7 @@ export const InvokeLLM = async ({ prompt, system_prompt, response_json_schema, f
   }
   
   // Select the model: use flash-latest for everything to avoid Pro quota limits on free-tier keys.
-  const model = "gemini-flash-latest";
+  const model = "gemini-3.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
   
   const parts = [];
@@ -130,7 +130,7 @@ export const TranscribeAudio = async ({ audio_url }) => {
       reader.readAsDataURL(blob);
     });
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     const body = {
       contents: [{
         parts: [
