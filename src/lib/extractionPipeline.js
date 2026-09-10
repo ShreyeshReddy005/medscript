@@ -59,7 +59,7 @@ Return JSON:
 {
   "document_type": "prescription" | "lab_report" | "medical_document" | "not_medical",
   "confidence": 0-100,
-  "is_valid": true ONLY if document_type is "prescription" or "lab_report" AND confidence >= 75,
+  "is_valid": true ONLY if document_type is "prescription", "lab_report", or "medical_document" AND confidence >= 75,
   "reason": "one clear sentence explaining your decision",
   "detected_elements": ["list of medical elements found, e.g., doctor_name, clinic_name, medication_names, test_names, reference_ranges, patient_name"]
 }`;
@@ -511,8 +511,8 @@ export async function processPrescription(fileUrls) {
 
   // Stage 3: Sanitize
   const medicines = sanitizeMedicines(raw.medicines || []);
-  if (medicines.length === 0) {
-    throw new ExtractionError("no_medicines", "Could not detect any medicines in this image. Please ensure the prescription is clearly visible and well-lit, then try again.");
+  if (medicines.length === 0 && !raw.diagnosis && !raw.notes) {
+    throw new ExtractionError("no_medicines", "Could not detect any medicines, diagnosis, or notes in this image. Please ensure the document is clearly visible.");
   }
 
   // Stage 4: Normalize dates
