@@ -68,7 +68,9 @@ export const AuthProvider = ({ children }) => {
 
   const navigateToLogin = () => {
     // Navigate to local login page instead of Base44 remote login
-    window.location.href = '/login';
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   };
 
   return (
