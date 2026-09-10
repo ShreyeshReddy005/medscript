@@ -26,6 +26,21 @@ const createEntityProxy = (tableName) => {
       return data || [];
     },
 
+    list: async (sort = null, limit = null) => {
+      let req = supabase.from(tableName.toLowerCase()).select('*');
+      if (sort) {
+        const isDesc = sort.startsWith('-');
+        const column = isDesc ? sort.substring(1) : sort;
+        req = req.order(column, { ascending: !isDesc });
+      }
+      if (limit) {
+        req = req.limit(limit);
+      }
+      const { data, error } = await req;
+      if (error) throw error;
+      return data || [];
+    },
+
     create: async (payload) => {
       // Supabase RLS policies require the user_id for inserts if we want them tied to a user.
       const userRes = await supabase.auth.getUser();
