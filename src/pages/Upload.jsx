@@ -183,22 +183,21 @@ function PrescriptionUploader({ onBack }) {
         try {
             const interactions = await runDrugInteractionCheck(newPrescription.medicines);
             if (interactions.length > 0) {
-                // Save interactions to the prescription record
-                await Prescription.update(newPrescription.id, { drug_interactions: interactions });
                 const severeOnes = interactions.filter(i => i.severity === "severe");
                 const moderateOnes = interactions.filter(i => i.severity === "moderate");
-                let warningText = "⚠️ Drug Interaction Alert\n\n";
+                let warningText = "🚨 Drug Interaction Alert\n\n";
                 if (severeOnes.length > 0) {
-                    warningText += "🔴 SEVERE:\n";
+                    warningText += "⛔ SEVERE:\n";
                     severeOnes.forEach(i => { warningText += `• ${i.drug_a} + ${i.drug_b}: ${i.description}\n`; });
                     warningText += "\n";
                 }
                 if (moderateOnes.length > 0) {
-                    warningText += "🟡 MODERATE:\n";
+                    warningText += "⚠️ MODERATE:\n";
                     moderateOnes.forEach(i => { warningText += `• ${i.drug_a} + ${i.drug_b}: ${i.description}\n`; });
                 }
                 warningText += "\nPlease consult your doctor or pharmacist before taking these medicines together.";
                 setInteractionWarning(warningText);
+                setCurrentStep("warning");
             }
         } catch (e) {
             console.error("Interaction check failed:", e);
