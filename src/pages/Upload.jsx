@@ -153,10 +153,19 @@ function PrescriptionUploader({ onBack }) {
         setSaving(true);
         try {
             // Auto-archive if the prescription's medication course has already ended
-            const finalData = isPrescriptionCourseCompleted(dataToSave)
-                ? { ...dataToSave, is_active: false }
-                : dataToSave;
-            const saved = await Prescription.create(finalData);
+            const isActive = isPrescriptionCourseCompleted(dataToSave) ? false : (dataToSave.is_active !== false);
+            
+            const payload = {
+                patient_name: dataToSave.patient_name,
+                doctor_name: dataToSave.doctor_name,
+                date: dataToSave.prescription_date || new Date().toISOString().split('T')[0],
+                medicines: dataToSave.medicines || [],
+                advice: dataToSave.diagnosis ? `${dataToSave.diagnosis}\n${dataToSave.notes || ''}` : dataToSave.notes,
+                is_active: isActive,
+                file_url: dataToSave.original_file_url
+            };
+
+            const saved = await Prescription.create(payload);
             setSavedPrescription(saved);
             await checkDrugInteractions(saved);
             setCurrentStep("reminders");
@@ -522,7 +531,16 @@ function ReportUploader({ onBack }) {
 
     const handleSave = async (data) => {
         try {
-            await HealthReport.create(data);
+            const payload = {
+                patient_name: data.patient_name,
+                report_type: data.report_name || data.report_type,
+                date: data.report_date,
+                results: data.results || [],
+                summary: data.summary,
+                file_url: data.original_file_url,
+                ordering_physician: data.ordering_physician,
+            };
+            await HealthReport.create(payload);
             navigate(createPageUrl("History"));
         } catch (error) {
             console.error("Failed to save health report:", error);
