@@ -261,14 +261,14 @@ function PrescriptionUploader({ onBack }) {
             case "error":
                 return (
                     <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-                        <div className={`w-20 h-20 ${errorType === 'not_medical' ? 'bg-orange-100' : 'bg-red-100'} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
-                            {errorType === 'not_medical'
+                        <div className={`w-20 h-20 ${(errorType === 'not_medical' || errorType === 'wrong_type') ? 'bg-orange-100' : 'bg-red-100'} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
+                            {(errorType === 'not_medical' || errorType === 'wrong_type')
                                 ? <ShieldAlert className="w-10 h-10 text-orange-500" />
                                 : <AlertTriangle className="w-10 h-10 text-red-500" />
                             }
                         </div>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
-                            {errorType === 'not_medical' ? 'Not a Medical Document' : 'Extraction Failed'}
+                            {errorType === 'not_medical' ? 'Not a Medical Document' : errorType === 'wrong_type' ? 'Wrong Category' : 'Extraction Failed'}
                         </h2>
                         <p className="text-gray-500 text-sm leading-relaxed mb-8 max-w-sm">{extractionError}</p>
                         <div className="space-y-3 w-full max-w-xs">
@@ -570,14 +570,14 @@ function ReportUploader({ onBack }) {
         case "error":
             return (
                 <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-                    <div className={`w-20 h-20 ${errorType === 'not_medical' ? 'bg-orange-100' : 'bg-red-100'} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
-                        {errorType === 'not_medical'
+                    <div className={`w-20 h-20 ${(errorType === 'not_medical' || errorType === 'wrong_type') ? 'bg-orange-100' : 'bg-red-100'} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
+                        {(errorType === 'not_medical' || errorType === 'wrong_type')
                             ? <ShieldAlert className="w-10 h-10 text-orange-500" />
                             : <AlertTriangle className="w-10 h-10 text-red-500" />
                         }
                     </div>
                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                        {errorType === 'not_medical' ? 'Not a Medical Document' : 'Extraction Failed'}
+                        {errorType === 'not_medical' ? 'Not a Medical Document' : errorType === 'wrong_type' ? 'Wrong Category' : 'Extraction Failed'}
                     </h2>
                     <p className="text-gray-500 text-sm leading-relaxed mb-8 max-w-sm">{extractionError}</p>
                     <Button onClick={() => { setCurrentStep("upload"); setExtractionError(null); setErrorType(null); }} className="w-full max-w-xs bg-blue-600 hover:bg-blue-700">
