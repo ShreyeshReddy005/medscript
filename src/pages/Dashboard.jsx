@@ -98,11 +98,10 @@ export default function Dashboard() {
   const handleLogAction = async (reminder, status) => {
     try {
       const newLogEntry = {
-        reminder_id: reminder.id,
         patient_name: reminder.patient_name,
         medicine_name: reminder.medicine_name,
         scheduled_time: reminder.scheduled_time,
-        taken_time: status === "taken" ? new Date().toISOString() : null,
+        taken_at: status === "taken" ? new Date().toISOString() : null,
         status: status
       };
       const savedLog = await MedicationLog.create(newLogEntry);

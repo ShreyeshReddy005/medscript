@@ -533,7 +533,7 @@ function ReportUploader({ onBack }) {
             const payload = {
                 patient_name: data.patient_name,
                 report_type: data.report_name || data.report_type,
-                date: data.report_date,
+                date: data.report_date || new Date().toISOString().split('T')[0],
                 results: data.results || [],
                 summary: data.summary,
                 file_url: data.original_file_url,

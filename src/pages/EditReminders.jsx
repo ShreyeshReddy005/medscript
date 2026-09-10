@@ -32,9 +32,9 @@ export default function EditReminders() {
     setReminders(prevReminders =>
       prevReminders.map(reminder => {
         if (reminder.id === reminderId) {
-          const updatedTimes = [...(reminder.reminder_times || [])];
+          const updatedTimes = [...(reminder.times || [])];
           updatedTimes[timeIndex] = newTime;
-          return { ...reminder, reminder_times: updatedTimes };
+          return { ...reminder, times: updatedTimes };
         }
         return reminder;
       })
@@ -45,7 +45,7 @@ export default function EditReminders() {
     setReminders(prevReminders =>
       prevReminders.map(reminder => {
         if (reminder.id === reminderId) {
-          return { ...reminder, reminder_times: [...(reminder.reminder_times || []), "08:00"] };
+          return { ...reminder, times: [...(reminder.times || []), "08:00"] };
         }
         return reminder;
       })
@@ -56,9 +56,9 @@ export default function EditReminders() {
     setReminders(prevReminders =>
       prevReminders.map(reminder => {
         if (reminder.id === reminderId) {
-          const updatedTimes = [...(reminder.reminder_times || [])];
+          const updatedTimes = [...(reminder.times || [])];
           updatedTimes.splice(timeIndex, 1);
-          return { ...reminder, reminder_times: updatedTimes };
+          return { ...reminder, times: updatedTimes };
         }
         return reminder;
       })
@@ -71,7 +71,7 @@ export default function EditReminders() {
       // Save each reminder individually
       for (const reminder of reminders) {
         await MedicationReminder.update(reminder.id, {
-          reminder_times: reminder.reminder_times
+          times: reminder.times
         });
       }
       toast.success("Reminders updated successfully");
@@ -119,7 +119,7 @@ export default function EditReminders() {
               <div className="space-y-3">
                 <Label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Reminder Times</Label>
                 
-                {(reminder.reminder_times || []).map((time, index) => (
+                {(reminder.times || []).map((time, index) => (
                   <div key={index} className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-gray-400" />
                     <Input

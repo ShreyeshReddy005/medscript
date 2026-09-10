@@ -110,13 +110,19 @@ export default function VisitAssistant() {
   const handlePrepComplete = async (prepData) => {
     try {
       const visit = await Visit.create({
-        ...prepData,
         patient_name: selectedPatient,
+        doctor_name: prepData.doctor_name,
+        visit_date: prepData.visit_date,
+        reason: prepData.visit_purpose,
+        symptoms: prepData.symptoms,
+        questions: prepData.questions,
+        notes: JSON.stringify({ specialty: prepData.specialty, clinic_name: prepData.clinic_name }),
+        status: "upcoming",
       });
       setCurrentVisit(visit);
       setStep("recording");
-    } catch (e) {
-      console.error("Failed to save prep:", e);
+    } catch (error) {
+      console.error("Failed to create visit:", error);
     }
   };
 
@@ -131,9 +137,9 @@ export default function VisitAssistant() {
       });
       const { file_url } = await UploadFile({ file });
 
+      const notesObj = currentVisit.notes ? JSON.parse(currentVisit.notes) : {};
       await Visit.update(currentVisit.id, {
-        audio_file_url: file_url,
-        duration_seconds: durationSeconds,
+        notes: JSON.stringify({ ...notesObj, audio_file_url: file_url, duration_seconds: durationSeconds }),
         status: "recording",
       });
 
@@ -190,11 +196,17 @@ Be concise, accurate, and use plain language. Only include what was actually dis
         },
       });
 
-      const updated = await Visit.update(currentVisit.id, {
+      const existingNotes = currentVisit.notes ? JSON.parse(currentVisit.notes) : {};
+      const updatedNotes = JSON.stringify({
+        ...existingNotes,
         transcript,
         key_points: summary.key_points || [],
         recommendations: summary.recommendations || [],
-        next_steps: summary.next_steps || [],
+        next_steps: summary.next_steps || []
+      });
+
+      const updated = await Visit.update(currentVisit.id, {
+        notes: updatedNotes,
         status: "completed",
       });
 
@@ -208,7 +220,14 @@ Be concise, accurate, and use plain language. Only include what was actually dis
   };
 
   const handleSaveSummary = async (summaryData) => {
-    await Visit.update(currentVisit.id, summaryData);
+    const existingNotes = currentVisit.notes ? JSON.parse(currentVisit.notes) : {};
+    const updatedNotes = JSON.stringify({
+      ...existingNotes,
+      key_points: summaryData.key_points || [],
+      recommendations: summaryData.recommendations || [],
+      next_steps: summaryData.next_steps || []
+    });
+    await Visit.update(currentVisit.id, { notes: updatedNotes });
     if (selectedPatient) await loadVisits(selectedPatient);
   };
 

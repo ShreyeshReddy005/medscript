@@ -4,7 +4,7 @@ import { supabase } from '../lib/AuthContext.jsx';
 const createEntityProxy = (tableName) => {
   return {
     filter: async (query = {}, sort = null, limit = null) => {
-      let req = supabase.from(tableName).select('*');
+      let req = supabase.from(tableName.toLowerCase()).select('*');
       
       for (const [key, value] of Object.entries(query)) {
         req = req.eq(key, value);
@@ -33,19 +33,19 @@ const createEntityProxy = (tableName) => {
          payload.user_id = userRes.data.user.id;
       }
 
-      const { data, error } = await supabase.from(tableName).insert(payload).select().single();
+      const { data, error } = await supabase.from(tableName.toLowerCase()).insert(payload).select().single();
       if (error) throw error;
       return data;
     },
 
     update: async (id, payload) => {
-      const { data, error } = await supabase.from(tableName).update(payload).eq('id', id).select().single();
+      const { data, error } = await supabase.from(tableName.toLowerCase()).update(payload).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
 
     delete: async (id) => {
-      const { error } = await supabase.from(tableName).delete().eq('id', id);
+      const { error } = await supabase.from(tableName.toLowerCase()).delete().eq('id', id);
       if (error) throw error;
       return true;
     }

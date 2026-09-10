@@ -156,10 +156,25 @@ export default function History() {
 
   if (editingPrescription) {
     return (
-      <PrescriptionForm
-        initialData={editingPrescription}
-        onSave={async (d) => { await Prescription.update(editingPrescription.id, d); await handleUpdateAndClose(); }}
-        onCancel={() => setEditingPrescription(null)}
+      <PrescriptionForm 
+        initialData={{
+          ...editingPrescription,
+          prescription_date: editingPrescription.date,
+          diagnosis: editingPrescription.advice,
+          notes: ""
+        }} 
+        onSave={async (d) => { 
+          const payload = {
+            patient_name: d.patient_name,
+            doctor_name: d.doctor_name,
+            date: d.prescription_date,
+            medicines: d.medicines,
+            advice: d.diagnosis ? `${d.diagnosis}\n${d.notes || ''}` : d.notes
+          };
+          await Prescription.update(editingPrescription.id, payload); 
+          await handleUpdateAndClose(); 
+        }} 
+        onCancel={() => setEditingPrescription(null)} 
       />
     );
   }
