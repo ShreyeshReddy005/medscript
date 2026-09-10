@@ -114,6 +114,44 @@ export const InvokeLLM = async ({ prompt, system_prompt, response_json_schema, f
   return textResponse;
 };
 
-export const TranscribeAudio = async () => {
-  throw new Error("Transcribe Audio not implemented.");
+export const TranscribeAudio = async ({ audio_url }) => {
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) {
+    throw new Error("Missing VITE_GEMINI_API_KEY in environment variables.");
+  }
+
+  try {
+    const response = await fetch(audio_url);
+    const blob = await response.blob();
+    
+    const base64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(blob);
+    });
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`;
+    const body = {
+      contents: [{
+        parts: [
+          { inlineData: { mimeType: blob.type, data: base64 } },
+          { text: "Please accurately transcribe this audio recording. Provide only the transcript." }
+        ]
+      }]
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "Unknown error");
+
+    return { text: data.candidates?.[0]?.content?.parts?.[0]?.text || "" };
+  } catch (err) {
+    console.error("Transcription failed:", err);
+    throw err;
+  }
 };
