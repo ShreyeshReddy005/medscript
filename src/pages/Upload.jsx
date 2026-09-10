@@ -113,7 +113,7 @@ function PrescriptionUploader({ onBack }) {
             const finalData = {
                 ...extractedData,
                 original_file_url: fileUrls[0],
-                patient_name: selectedPatient,
+                patient_name: extractedData.patient_name || selectedPatient,
                 is_active: true
             };
             setExtractedData(finalData);
@@ -164,6 +164,19 @@ function PrescriptionUploader({ onBack }) {
                 is_active: isActive,
                 file_url: dataToSave.original_file_url
             };
+
+            // Auto-create FamilyMember if name doesn't exist
+            if (payload.patient_name) {
+                const exists = patientProfiles.some(p => p.name.toLowerCase() === payload.patient_name.toLowerCase());
+                if (!exists) {
+                    try {
+                        await FamilyMember.create({ full_name: payload.patient_name, relation_to_user: "Other" });
+                        setPatientProfiles([...patientProfiles, { name: payload.patient_name, id: 'new' }]);
+                    } catch (e) {
+                        console.error("Auto-create profile failed", e);
+                    }
+                }
+            }
 
             const saved = await Prescription.create(payload);
             setSavedPrescription(saved);
@@ -512,7 +525,7 @@ function ReportUploader({ onBack }) {
             clearInterval(progressInterval);
             setProgress(100);
 
-            setExtractedData({ ...extractedData, original_file_url: fileUrls[0], patient_name: selectedPatient });
+            setExtractedData({ ...extractedData, original_file_url: fileUrls[0], patient_name: extractedData.patient_name || selectedPatient });
             setCurrentStep("preview");
         } catch (error) {
             if (progressInterval) clearInterval(progressInterval);
@@ -539,6 +552,20 @@ function ReportUploader({ onBack }) {
                 file_url: data.original_file_url,
                 ordering_physician: data.ordering_physician,
             };
+
+            // Auto-create FamilyMember if name doesn't exist
+            if (payload.patient_name) {
+                const exists = patientProfiles.some(p => p.name.toLowerCase() === payload.patient_name.toLowerCase());
+                if (!exists) {
+                    try {
+                        await FamilyMember.create({ full_name: payload.patient_name, relation_to_user: "Other" });
+                        setPatientProfiles([...patientProfiles, { name: payload.patient_name, id: 'new' }]);
+                    } catch (e) {
+                        console.error("Auto-create profile failed", e);
+                    }
+                }
+            }
+
             await HealthReport.create(payload);
             navigate(createPageUrl("History"));
         } catch (error) {
