@@ -43,6 +43,14 @@ export default function HealthReportDetail({ report, onClose, onDelete }) {
   const normalResults = report.results?.filter(r => !r.is_abnormal) || [];
   const visibleNormal = showAll ? normalResults : normalResults.slice(0, 4);
 
+  let summaryText = report.summary || "";
+  let deepInsights = [];
+  if (summaryText.includes('\n\n---INSIGHTS---\n')) {
+    const parts = summaryText.split('\n\n---INSIGHTS---\n');
+    summaryText = parts[0];
+    try { deepInsights = JSON.parse(parts[1]); } catch (e) {}
+  }
+
   return (
     <AnimatePresence>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -115,10 +123,20 @@ export default function HealthReportDetail({ report, onClose, onDelete }) {
               </div>
             )}
 
-            {report.summary && (
+            {summaryText && (
               <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
                 <h3 className="font-semibold text-blue-900 mb-2">Doctor's Summary</h3>
-                <p className="text-sm text-blue-800 leading-relaxed">{report.summary}</p>
+                <p className="text-sm text-blue-800 leading-relaxed">{summaryText}</p>
+              </div>
+            )}
+
+            {/* Deep Insights */}
+            {deepInsights.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">AI Deep Insights</h3>
+                {deepInsights.map((insight, idx) => (
+                  <DeepInsightCard key={idx} insight={insight} />
+                ))}
               </div>
             )}
 

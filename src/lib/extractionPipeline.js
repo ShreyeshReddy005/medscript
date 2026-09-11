@@ -180,6 +180,16 @@ prescription_date: ALWAYS return in ISO format YYYY-MM-DD (e.g., "2024-03-15").
 ═══ SELF-VERIFICATION (CRITICAL) ═══
 Before producing your final JSON, re-read the image one more time and for EACH medicine you are about to output, confirm the name is literally visible on the prescription. Remove any medicine whose name you cannot point to in the image. This is your last chance to prevent hallucinations.
 
+  🩺 DEEP MEDICAL INSIGHTS 🩺
+  Generate a 'deep_insights' array for the primary diagnosis or any major health issues found in the prescription. For each issue:
+  - 'title': The issue (e.g., 'Lower Back Pain', 'Hypertension').
+  - 'severity': 'monitor', 'abnormal', or 'critical'.
+  - 'simple_analogy': A relatable metaphor explaining the issue (e.g., 'Like a worn-out spring in a chair, your back needs support.').
+  - 'what_it_means': A plain English explanation of the condition.
+  - 'possible_causes': Array of common causes (e.g., 'Muscle strain', 'Poor posture').
+  - 'action_plan': Array of actionable steps, prioritizing the doctor's advice (e.g., 'Apply warm compress', 'Physiotherapy').
+  - 'doctor_questions': Array of specific questions the patient should ask at their next visit.
+
 ═══ OUTPUT ═══
 Return ONLY valid JSON. No markdown, no text outside JSON.
 If a field is not present, OMIT it (do not use null or empty string).
@@ -197,6 +207,22 @@ const PRESCRIPTION_SCHEMA = {
     prescription_date: { type: "string" },
     diagnosis: { type: "string" },
     notes: { type: "string" },
+    deep_insights: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          severity: { type: "string", enum: ["monitor", "abnormal", "critical"] },
+          simple_analogy: { type: "string" },
+          what_it_means: { type: "string" },
+          possible_causes: { type: "array", items: { type: "string" } },
+          action_plan: { type: "array", items: { type: "string" } },
+          doctor_questions: { type: "array", items: { type: "string" } }
+        },
+        required: ["title", "severity", "simple_analogy", "what_it_means", "possible_causes", "action_plan", "doctor_questions"]
+      }
+    },
     medicines: {
       type: "array",
       items: {
@@ -296,9 +322,19 @@ Set true if ANY:
 - patient_name: from patient info section
 - summary: impression, conclusion, or physician's note
 
-═══ OUTPUT ═══
-Return ONLY valid JSON. No markdown, no text outside JSON.
-If a field is not present, OMIT it. Each result MUST have "test_name" and "value".`;
+  🩺 DEEP MEDICAL INSIGHTS 🩺
+  Generate a 'deep_insights' array for any ABNORMAL lab results or significant findings. For each issue:
+  - 'title': The issue (e.g., 'Elevated LDL Cholesterol', 'Low Vitamin D').
+  - 'severity': 'monitor', 'abnormal', or 'critical'.
+  - 'simple_analogy': A relatable metaphor (e.g., 'Think of LDL like delivery trucks clogging up your highway arteries.').
+  - 'what_it_means': Plain English explanation of the test and what the abnormal value signifies.
+  - 'possible_causes': Array of common reasons for this abnormal value.
+  - 'action_plan': Array of actionable, evidence-based lifestyle/dietary steps to improve it.
+  - 'doctor_questions': Array of specific questions to ask the doctor about this result.
+
+  ═══ OUTPUT ═══
+  Return ONLY valid JSON. No markdown, no text outside JSON.
+  If a field is not present, OMIT it. Each result MUST have "test_name" and "value".`;
 
 const REPORT_SCHEMA = {
   type: "object",
@@ -310,6 +346,22 @@ const REPORT_SCHEMA = {
     ordering_physician: { type: "string" },
     lab_name: { type: "string" },
     summary: { type: "string" },
+    deep_insights: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          severity: { type: "string", enum: ["monitor", "abnormal", "critical"] },
+          simple_analogy: { type: "string" },
+          what_it_means: { type: "string" },
+          possible_causes: { type: "array", items: { type: "string" } },
+          action_plan: { type: "array", items: { type: "string" } },
+          doctor_questions: { type: "array", items: { type: "string" } }
+        },
+        required: ["title", "severity", "simple_analogy", "what_it_means", "possible_causes", "action_plan", "doctor_questions"]
+      }
+    },
     results: {
       type: "array",
       items: {
@@ -505,6 +557,9 @@ export async function processPrescription(fileUrls) {
       confidence: validation.confidence,
     });
   }
+  if (validation.document_type === "lab_report") {
+    throw new ExtractionError("wrong_type", "This looks like a Lab Report, but you are in the Prescription uploader. Please go back and select 'Upload Lab Report'.");
+  }
 
   // Stage 2: Extract
   const raw = await extractPrescriptionData(urls);
@@ -530,6 +585,9 @@ export async function processHealthReport(fileUrls) {
       document_type: validation.document_type,
       confidence: validation.confidence,
     });
+  }
+  if (validation.document_type === "prescription") {
+    throw new ExtractionError("wrong_type", "This looks like a Prescription, but you are in the Lab Report uploader. Please go back and select 'Upload Prescription'.");
   }
 
   // Stage 2: Extract

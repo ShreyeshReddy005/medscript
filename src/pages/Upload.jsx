@@ -155,12 +155,17 @@ function PrescriptionUploader({ onBack }) {
             // Auto-archive if the prescription's medication course has already ended
             const isActive = isPrescriptionCourseCompleted(dataToSave) ? false : (dataToSave.is_active !== false);
             
+            let adviceStr = dataToSave.diagnosis ? `${dataToSave.diagnosis}\n${dataToSave.notes || ''}` : dataToSave.notes || '';
+            if (dataToSave.deep_insights && dataToSave.deep_insights.length > 0) {
+                adviceStr += `\n\n---INSIGHTS---\n${JSON.stringify(dataToSave.deep_insights)}`;
+            }
+
             const payload = {
                 patient_name: dataToSave.patient_name,
                 doctor_name: dataToSave.doctor_name,
                 date: dataToSave.prescription_date || new Date().toISOString().split('T')[0],
                 medicines: dataToSave.medicines || [],
-                advice: dataToSave.diagnosis ? `${dataToSave.diagnosis}\n${dataToSave.notes || ''}` : dataToSave.notes,
+                advice: adviceStr,
                 is_active: isActive,
                 file_url: dataToSave.original_file_url
             };
@@ -543,12 +548,17 @@ function ReportUploader({ onBack }) {
 
     const handleSave = async (data) => {
         try {
+            let summaryStr = data.summary || '';
+            if (data.deep_insights && data.deep_insights.length > 0) {
+                summaryStr += `\n\n---INSIGHTS---\n${JSON.stringify(data.deep_insights)}`;
+            }
+
             const payload = {
                 patient_name: data.patient_name,
                 report_type: data.report_name || data.report_type,
                 date: data.report_date || new Date().toISOString().split('T')[0],
                 results: data.results || [],
-                summary: data.summary,
+                summary: summaryStr,
                 file_url: data.original_file_url,
                 ordering_physician: data.ordering_physician,
             };

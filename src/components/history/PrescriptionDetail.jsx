@@ -8,6 +8,7 @@ import { X, User, Calendar, Pill, FileText, ExternalLink, Share2, Archive, Check
 import FileViewer from '../shared/FileViewer';
 import MedicineReminderEditor from '../medicines/MedicineReminderEditor';
 import MedicineInsightViewer from '../medicines/MedicineInsightViewer';
+import DeepInsightCard from '../shared/DeepInsightCard';
 import { Button } from "@/components/ui/button";
 
 export default function PrescriptionDetail({ prescription, onClose, onUpdate, onEdit, onDelete }) {
@@ -20,6 +21,26 @@ export default function PrescriptionDetail({ prescription, onClose, onUpdate, on
   const [showMedicineInsightFor, setShowMedicineInsightFor] = useState(null);
   const [extractingTests, setExtractingTests] = useState(false);
   const [linkedTasks, setLinkedTasks] = useState([]);
+
+  // Parse advice into diagnosis, notes, and deep insights
+  let displayDiagnosis = prescription.diagnosis || "";
+  let displayNotes = prescription.notes || "";
+  let deepInsights = [];
+
+  if (prescription.advice) {
+    const parts = prescription.advice.split('\n\n---INSIGHTS---\n');
+    const rawAdvice = parts[0] || '';
+    if (parts[1]) {
+      try { deepInsights = JSON.parse(parts[1]); } catch (e) {}
+    }
+    if (!displayDiagnosis && !displayNotes) {
+      const lines = rawAdvice.split('\n');
+      if (lines.length > 0) {
+        displayDiagnosis = lines[0];
+        displayNotes = lines.slice(1).join('\n');
+      }
+    }
+  }
 
   useEffect(() => {
     if (prescription?.id) {
@@ -34,9 +55,9 @@ export default function PrescriptionDetail({ prescription, onClose, onUpdate, on
       const medicinesList = prescription.medicines?.map(m => m.name).join(", ") || "None";
       const todayISO = format(new Date(), "yyyy-MM-dd");
       const prompt = `Based on this prescription, identify any lab tests, investigations, or follow-up actions the doctor recommended or that are clinically indicated for this diagnosis.
-Diagnosis: ${prescription.diagnosis || "Not specified"}
+Diagnosis: ${displayDiagnosis || "Not specified"}
 Medicines: ${medicinesList}
-Doctor notes: ${prescription.notes || "None"}
+Doctor notes: ${displayNotes || "None"}
 
 Return a JSON object with a "tasks" array. Each task must have:
 - "title": the test or action name (e.g. "Complete Blood Count", "Follow-up in 2 weeks")
@@ -106,7 +127,7 @@ Only include genuinely recommended or clearly clinically indicated tasks. If non
       shareText += `*Clinic:* ${prescription.clinic_name}\n`;
     }
     shareText += `*Date:* ${format(new Date(prescription.prescription_date || prescription.created_date), "MMM d, yyyy")}\n\n`;
-    shareText += `*Diagnosis:* ${prescription.diagnosis || 'N/A'}\n\n`;
+    shareText += `*Diagnosis:* ${displayDiagnosis || 'N/A'}\n\n`;
     shareText += "*Medicines:*\n";
     
     prescription.medicines?.forEach((med, index) => {
@@ -119,8 +140,8 @@ Only include genuinely recommended or clearly clinically indicated tasks. If non
       shareText += '\n';
     });
 
-    if (prescription.notes) {
-        shareText += `*Additional Notes:*\n${prescription.notes}\n`;
+    if (displayNotes) {
+        shareText += `*Additional Notes:*\n${displayNotes}\n`;
     }
 
     try {
@@ -190,9 +211,9 @@ Only include genuinely recommended or clearly clinically indicated tasks. If non
       const insightsPrompt = `
         Provide a comprehensive medical insight based on this prescription. Use this format:
 
-        DIAGNOSIS: ${prescription.diagnosis || 'Not specified'}
+        DIAGNOSIS: ${displayDiagnosis || 'Not specified'}
         MEDICINES: ${medicinesList}
-        DOCTOR NOTES: ${prescription.notes || 'None'}
+        DOCTOR NOTES: ${displayNotes || 'None'}
 
         Please provide a brief medical summary covering:
         
@@ -393,7 +414,7 @@ Only include genuinely recommended or clearly clinically indicated tasks. If non
             </div>
 
             {/* Diagnosis & Medical Insights */}
-            {prescription.diagnosis && (
+            {displayDiagnosis && (
               <div className="bg-white rounded-2xl p-3 sm:p-4 border border-gray-100">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 space-y-2 sm:space-y-0">
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Diagnosis & Medical Insights</h3>
@@ -411,7 +432,7 @@ Only include genuinely recommended or clearly clinically indicated tasks. If non
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Diagnosed Condition:</h4>
-                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg text-sm sm:text-base break-words">{prescription.diagnosis}</p>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg text-sm sm:text-base break-words">{displayDiagnosis}</p>
                   </div>
                   
                   {loadingInsights && (
@@ -474,10 +495,20 @@ Only include genuinely recommended or clearly clinically indicated tasks. If non
             </div>
 
             {/* Additional Notes */}
-            {prescription.notes && (
+            {displayNotes && (
               <div className="bg-white rounded-2xl p-3 sm:p-4 border border-gray-100">
                 <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Additional Notes</h3>
-                <p className="text-gray-700 text-sm sm:text-base break-words">{prescription.notes}</p>
+                <p className="text-gray-700 text-sm sm:text-base break-words">{displayNotes}</p>
+              </div>
+            )}
+
+            {/* Deep Insights */}
+            {deepInsights.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">AI Deep Insights</h3>
+                {deepInsights.map((insight, idx) => (
+                  <DeepInsightCard key={idx} insight={insight} />
+                ))}
               </div>
             )}
 
