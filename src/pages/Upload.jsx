@@ -185,11 +185,19 @@ function PrescriptionUploader({ onBack }) {
 
             const saved = await Prescription.create(payload);
             setSavedPrescription(saved);
-            await checkDrugInteractions(saved);
+            // Fire and forget drug interaction check so it doesn't block the UI
+            checkDrugInteractions(saved);
             setCurrentStep("reminders");
         } catch (error) {
             console.error("Error saving prescription:", error);
             setExtractionError("Failed to save prescription. Please try again.");
+            if (error && error.type) {
+                setExtractionError(error.message || "Failed to save prescription. Please try again.");
+                setErrorType(error.type);
+            } else {
+                setExtractionError("Something went wrong while processing. Please try again.");
+                setErrorType("general");
+            }
             setCurrentStep("error");
         } finally {
             setSaving(false);
@@ -244,19 +252,18 @@ function PrescriptionUploader({ onBack }) {
     };
 
     const renderStep = () => {
-        switch(currentStep) {
+        switch (currentStep) {
             case "upload":
                 return (
-                    <>
-                        <div className="px-5 pt-4">
+                    <div className="max-w-5xl mx-auto">
+                        <div className="p-4">
                             <Button variant="ghost" onClick={onBack}>
                                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
                             </Button>
                         </div>
                         
-                        {/* Patient Selection */}
                         {patientProfiles.length > 1 && (
-                            <div className="px-5 pb-4">
+                            <div className="px-4 pb-4">
                                 <Label>Upload for:</Label>
                                 <Select value={selectedPatient} onValueChange={setSelectedPatient}>
                                     <SelectTrigger>
@@ -272,13 +279,13 @@ function PrescriptionUploader({ onBack }) {
                                 </Select>
                             </div>
                         )}
-                        
+
                         <MultiFileUploadMethods 
-                            onFileSelect={handleFileSelect} 
-                            onCameraClick={() => setCurrentStep("camera")} 
+                            onFileSelect={handleFileSelect}
+                            onCameraClick={() => setCurrentStep("camera")}
+                            title="Upload Prescription"
                         />
-                        <UploadTips />
-                    </>
+                    </div>
                 );
             case "camera":
                 return <CameraCapture onCapture={handleCameraCapture} onCancel={() => setCurrentStep("upload")} />;
@@ -290,21 +297,20 @@ function PrescriptionUploader({ onBack }) {
                         <div className={`w-20 h-20 ${(errorType === 'not_medical' || errorType === 'wrong_type') ? 'bg-orange-100' : 'bg-red-100'} rounded-2xl flex items-center justify-center mx-auto mb-5`}>
                             {(errorType === 'not_medical' || errorType === 'wrong_type')
                                 ? <ShieldAlert className="w-10 h-10 text-orange-500" />
-                                : <AlertTriangle className="w-10 h-10 text-red-500" />
+                                : <AlertCircle className="w-10 h-10 text-red-500" />
                             }
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">
-                            {errorType === 'not_medical' ? 'Not a Medical Document' : errorType === 'wrong_type' ? 'Wrong Category' : 'Extraction Failed'}
+                        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                            {(errorType === 'not_medical') ? "Not a Medical Document" :
+                             (errorType === 'wrong_type') ? "Wrong Document Type" :
+                             "Extraction Failed"}
                         </h2>
-                        <p className="text-gray-500 text-sm leading-relaxed mb-8 max-w-sm">{extractionError}</p>
-                        <div className="space-y-3 w-full max-w-xs">
-                            <Button onClick={handleCancel} className="w-full bg-blue-600 hover:bg-blue-700">
-                                Try Again
-                            </Button>
-                            <Button variant="outline" onClick={handleCancel} className="w-full">
-                                Go Back
-                            </Button>
-                        </div>
+                        <p className="text-gray-600 max-w-md mx-auto mb-8 text-lg">
+                            {extractionError}
+                        </p>
+                        <Button onClick={() => { setCurrentStep("upload"); setExtractionError(null); setErrorType(null); }} className="w-full max-w-xs bg-blue-600 hover:bg-blue-700">
+                            Try Again
+                        </Button>
                     </div>
                 );
             case "preview":
@@ -313,16 +319,23 @@ function PrescriptionUploader({ onBack }) {
                 return <PrescriptionForm initialData={extractedData} onSave={handleSaveEdited} onCancel={() => setCurrentStep("preview")} />;
             case "reminders":
                 return <ReminderSetup prescription={savedPrescription} onClose={handleSkipReminders} onSave={handleRemindersComplete} />;
-            case "warning":
-                return (
-                    <DrugInteractionModal warning={interactionWarning} onClose={closeWarningAndNavigate} />
-                );
             default:
                 return <p>Unknown step</p>;
         }
     };
 
-    return <div className="min-h-screen bg-gray-50"><div className="max-w-5xl mx-auto">{renderStep()}</div></div>;
+    return (
+        <div className="min-h-screen bg-gray-50">
+            <div className="max-w-5xl mx-auto relative">
+                {renderStep()}
+                {interactionWarning && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+                        <DrugInteractionModal warning={interactionWarning} onClose={closeWarningAndNavigate} />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }
 
 // Enhanced Upload Methods with Multi-File Support

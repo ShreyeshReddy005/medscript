@@ -113,7 +113,7 @@ export default function ReminderSetup({ prescription, onClose, onSave }) {
     const today = startOfDay(new Date());
     const toCreate = reminders.filter(r => r.create_reminder).map(r => {
       const startDate = new Date(r.start_date);
-      const endDate = add(startDate, { days: r.duration_days });
+      const endDate = add(startDate, { days: r.duration_days || 30 });
       // Deactivate reminders whose entire course has already passed
       const courseEnded = isBefore(startOfDay(endDate), today);
       let refill_reminder_date = null;
@@ -124,15 +124,16 @@ export default function ReminderSetup({ prescription, onClose, onSave }) {
         refill_reminder_date = format(add(exhaustionDate, { days: -r.refill_reminder_days_before }), 'yyyy-MM-dd');
       }
       return {
-        prescription_id: r.prescription_id,
         patient_name: r.patient_name,
         medicine_name: r.name,
         dosage: r.dosage,
         frequency: r.frequency,
-        timing: r.timing,
         times: r.reminder_times,
-        duration: r.duration_days ? `${r.duration_days} days` : null,
-        is_active: !courseEnded
+        start_date: format(startDate, 'yyyy-MM-dd'),
+        end_date: format(endDate, 'yyyy-MM-dd'),
+        is_active: !courseEnded,
+        refill_reminder_date: refill_reminder_date,
+        notes: r.timing || null
       };
     });
     try {
